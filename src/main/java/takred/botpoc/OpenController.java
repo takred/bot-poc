@@ -53,4 +53,12 @@ public class OpenController {
         }
         return gameClient.start(registerResponse.getUuid());
     }
+    @RequestMapping(value = "/botstart")
+    public String startAll(){
+        open();
+        start();
+        guess();
+        exit();
+        return "Всё успешно.";
+    }
 }
