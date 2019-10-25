@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OpenController {
     private final GameClient gameClient;
     private RegisterResponse registerResponse = null;
+    private RegisterResponse startResponse = null;
     UUID idGame = null;
 
     public OpenController(GameClient gameClient) {
@@ -44,11 +45,12 @@ public class OpenController {
     }
 
     @RequestMapping(value = "/start")
-    public String start() {
+    public RegisterResponse start() {
         if (idGame == null) {
-            idGame = gameClient.start(registerResponse.getUuid()).getUuid();
-            return "Успешно.";
+            startResponse = gameClient.start(registerResponse.getUuid());
+            idGame = startResponse.getUuid();
+            return startResponse;
         }
-        return gameClient.start(registerResponse.getUuid()).getMessage();
+        return gameClient.start(registerResponse.getUuid());
     }
 }
