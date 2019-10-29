@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import takred.botpoc.client.GameClient;
 import takred.botpoc.client.RegisterResponse;
+import takred.botpoc.client.RegisterResponseGuess;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,6 +17,7 @@ public class OpenController {
     private final GameClient gameClient;
     private RegisterResponse registerResponse = null;
     private RegisterResponse startResponse = null;
+    private RegisterResponseGuess guessResponse = null;
     UUID idGame = null;
 
     public OpenController(GameClient gameClient) {
@@ -22,25 +26,25 @@ public class OpenController {
 
     @RequestMapping("/open")
     public String open() {
-        if(registerResponse == null){
-            registerResponse =  gameClient.register("Kostya");
+        if (registerResponse == null) {
+            registerResponse = gameClient.register("Kostya");
             return registerResponse.getMessage();
         }
         return gameClient.register("Kostya").getMessage();
     }
 
     @RequestMapping(value = "/guess")
-    public String guess() {
-        return gameClient.guess(idGame, ThreadLocalRandom.current().nextInt(1, 10000));
+    public RegisterResponseGuess guess() {
+        return gameClient.guess(idGame, ThreadLocalRandom.current().nextInt(0, 10000));
     }
 
     @RequestMapping("/exit")
-    public String exit(){
+    public String exit() {
         return gameClient.logout("Kostya");
     }
 
     @RequestMapping(value = "/login")
-    public String login(){
+    public String login() {
         return gameClient.login("Kostya");
     }
 
@@ -53,12 +57,46 @@ public class OpenController {
         }
         return gameClient.start(registerResponse.getUuid());
     }
-    @RequestMapping(value = "/botstart")
-    public String startAll(){
+
+    @RequestMapping(value = "/bot_start")
+    public String startAll() {
         open();
         start();
         guess();
         exit();
         return "Всё успешно.";
+    }
+
+    @RequestMapping(value = "/bot_start_bisect")
+    public String startAllBisect() {
+        open();
+        start();
+        finderBisection();
+        exit();
+        return "Успешно.";
+    }
+
+    public void finderBisection() {
+//        public boolean contains(List<Integer> allNumbers, int number){
+        List<Integer> allPossibleOptions = new ArrayList<>();
+        for (int i = 0; i < 10001; i++) {
+            allPossibleOptions.add(i);
+        }
+        int border = allPossibleOptions.size() / 2;
+        int previousBorder;
+        for (int i = 0; i < 100; i++) {
+            guessResponse = gameClient.guess(idGame, border);
+            if (guessResponse.getResult().equals("<")) {
+                previousBorder = border;
+                border = border / 2;
+            } else if (guessResponse.getResult().equals(">")) {
+                previousBorder = border;
+                border = border + ((previousBorder - border) / 2);
+            }
+            System.out.println(allPossibleOptions.get(border));
+            if (guessResponse.getResult().equals("=")) {
+                break;
+            }
+        }
     }
 }

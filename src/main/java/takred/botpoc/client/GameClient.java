@@ -12,7 +12,7 @@ public interface GameClient {
     public RegisterResponse register(@PathVariable("loginName") String loginName);
 
     @RequestMapping(value = "/guess/{gameSessionId}/{number}")
-    public String guess(@PathVariable("gameSessionId") UUID gameSessionId, @PathVariable("number") Integer number);
+    public RegisterResponseGuess guess(@PathVariable("gameSessionId") UUID gameSessionId, @PathVariable("number") Integer number);
 
     @RequestMapping(value = "/logout/{loginName}")
     public String logout(@PathVariable("loginName") String loginName);
