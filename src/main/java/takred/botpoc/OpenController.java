@@ -15,10 +15,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @RestController
 public class OpenController {
     private final GameClient gameClient;
-    private RegisterResponse registerResponse = null;
-    private RegisterResponse startResponse = null;
-    private RegisterResponseGuess guessResponse = null;
-    UUID idGame = null;
+    private RegisterResponse registerResponse;
+    private RegisterResponse startResponse;
+    private RegisterResponseGuess guessResponse;
+    UUID idGame;
 
     public OpenController(GameClient gameClient) {
         this.gameClient = gameClient;
@@ -35,7 +35,11 @@ public class OpenController {
 
     @RequestMapping(value = "/guess")
     public RegisterResponseGuess guess() {
-        return gameClient.guess(idGame, ThreadLocalRandom.current().nextInt(0, 10000));
+        RegisterResponseGuess registerResponseGuess = gameClient.guess(idGame, ThreadLocalRandom.current().nextInt(0, 10000));
+        if (registerResponseGuess.getResult() != null){
+            guessResponse = registerResponseGuess;
+        }
+        return registerResponseGuess;
     }
 
     @RequestMapping("/exit")
@@ -65,6 +69,23 @@ public class OpenController {
         guess();
         exit();
         return "Всё успешно.";
+    }
+
+    @RequestMapping(value = "/bot")
+    public String bot(){
+        if (registerResponse == null){
+            return open();
+        }
+        if (idGame == null){
+            return start().getMessage();
+        }
+        if (guessResponse == null){
+            return guess().getMessage();
+        }
+        if (guessResponse.getCount() != 100){
+            return guess().getMessage();
+        }
+        return exit();
     }
 
     @RequestMapping(value = "/bot_start_bisect")
