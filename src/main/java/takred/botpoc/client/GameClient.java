@@ -15,10 +15,10 @@ public interface GameClient {
     public RegisterResponseGuess guess(@PathVariable("gameSessionId") UUID gameSessionId, @PathVariable("number") Integer number);
 
     @RequestMapping(value = "/logout/{loginName}")
-    public String logout(@PathVariable("loginName") String loginName);
+    public logoutResponse logout(@PathVariable("loginName") String loginName);
 
     @RequestMapping(value = "/login/{loginName}")
-    public String login(@PathVariable("loginName") String loginName);
+    public RegisterResponse login(@PathVariable("loginName") String loginName);
 
     @RequestMapping(value = "/start/{loginSessionId}")
     public RegisterResponse start(@PathVariable("loginSessionId") UUID loginSessionId);
